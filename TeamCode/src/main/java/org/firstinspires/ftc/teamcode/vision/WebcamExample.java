@@ -105,18 +105,14 @@ public class WebcamExample extends OpenCvPipeline
             String position = "";
             for (int i = 0; i != boundRect.length; i++) {
                 Imgproc.rectangle(mat, boundRect[i], new Scalar(255, 255, 255),5);
-
-              //  Imgproc.drawMarker(mat, new Point(boundRect[i].x, boundRect[i].y), new Scalar(255,255,255), Imgproc.MARKER_SQUARE, 155, 8, Imgproc.LINE_8);
-
-
-              if (boundRect[i].x < left_x) {
+                //Imgproc.drawMarker(mat, new Point(boundRect[i].x, boundRect[i].y), new Scalar(255,255,255), Imgproc.MARKER_SQUARE, 155, 8, Imgproc.LINE_8);
+                if (boundRect[i].x < left_x) {
                   position = "left";
-              }
-              else if (boundRect[i].x > right_x) {
+                }else if (boundRect[i].x > right_x) {
                   position = "right";
-              }
-              else position = "center";
-               Imgproc.putText(mat, position, new Point(boundRect[i].x, boundRect[i].y), 0 , 0.5, new Scalar(255, 255, 255), 2);
+                }else
+                    position = "center";
+                Imgproc.putText(mat, position, new Point(boundRect[i].x, boundRect[i].y), 0 , 0.5, new Scalar(255, 255, 255), 2);
             }
 
 
