@@ -21,9 +21,9 @@ public class CameraOpmode extends LinearOpMode {
 
     waitForStart();
     runtime.reset();
-    visionPortal.stopStreaming();
     // run until the end of the match (driver presses STOP)
     while (opModeIsActive()) {
+      sleep(100L);
       telemetry.addData("Identified", test_proc.getSelection());
     }
   }

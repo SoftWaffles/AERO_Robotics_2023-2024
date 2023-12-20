@@ -16,7 +16,7 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
-@Autonomous
+@Autonomous(name="FTC_DASHBOARD_STREAM", group="Linear OpMode")
 public class VisionPortalStreamingOpMode extends LinearOpMode {
     public static class CameraStreamProcessor implements VisionProcessor, CameraStreamSource {
         private final AtomicReference<Bitmap> lastFrame =
