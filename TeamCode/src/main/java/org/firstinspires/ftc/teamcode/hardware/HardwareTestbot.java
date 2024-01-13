@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -17,27 +18,60 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 public class HardwareTestbot
 {
 
-    //define opmode members
+    // DEFINE OPMORE MEMBERS
     private LinearOpMode myOpMode;
-    //access instruments of Hub
-    IMU imu;
-    Orientation angle;
-    //sensors
-    // motor declarations
-    public DcMotor FLeft   = null;
-    public DcMotor FRight  = null;
-    public DcMotor RLeft   = null;
-    public DcMotor RRight  = null;
-    // motor for lift
 
-    //motor powers
-    public static double MAX_POWER = 1;
+    // ACCESS INSTRUMENTS OF HUB
+    public IMU imu;
+    Orientation angle;
+
+    // SENSORS
+
+    // MOTOR DECLARATIONS - MOVEMENT
+    public DcMotor frontLeft   = null;
+    public DcMotor frontRight  = null;
+    public DcMotor backLeft   = null;
+    public DcMotor backRight  = null;
+
+    // MOTOR DECLARATIONS - SUBSYSTEMS
+
+    // SERVOS - INTAKE
+    public Servo intake = null;
+    public Servo in_wrist = null;
+    public Servo in_arm = null;
+
+    // SERVOS - OUTTAKE
+    public Servo outtake = null;
+    public Servo out_wrist = null;
+    public Servo out_arm = null;
+
+    public Servo drone = null;
+
+    // MOTOR POWERS
+    public static double MAX_POWER = 0.6;
     public static double     COUNTS_PER_MOTOR_REV    = 537.7; // 28 for REV ;
     public static double     DRIVE_GEAR_REDUCTION    = 1.0; //   12 for REV;
     public static double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
+    // SERVO POSITIONS
+    public static double in_wrist_open = 0.3;
+    public static double in_wrist_closed = 0.5;
+
+    public static double in_arm_closed = 1;
+    public static double in_arm_open = 0.6;
+
+    public static double outtake_open = 0.25;
+    public static double outtake_closed = 0.1;
+
+    public static double out_arm_open = 0.25;
+    public static double out_arm_closed = 0.83;
+
+    public static double out_wrist_open = 0.4;
+    public static double out_wrist_closed = 0.08;
+
+    public static double drone_release = 1;
 
     public HardwareTestbot(){
     }
@@ -52,44 +86,93 @@ public class HardwareTestbot
                 new IMU.Parameters(
                         new RevHubOrientationOnRobot(
                                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
                         )
                 )
         );
 
-        FLeft = myOpMode.hardwareMap.get(DcMotor.class, "FLeft");
-        FRight = myOpMode.hardwareMap.get(DcMotor.class, "FRight");
-        RLeft = myOpMode.hardwareMap.get(DcMotor.class, "RLeft");
-        RRight = myOpMode.hardwareMap.get(DcMotor.class, "RRight");
+        //motors
+        frontLeft = myOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
+        frontRight = myOpMode.hardwareMap.get(DcMotor.class, "frontRight");
+        backLeft = myOpMode.hardwareMap.get(DcMotor.class, "backLeft");
+        backRight = myOpMode.hardwareMap.get(DcMotor.class, "backRight");
 
+        //servos
+        intake = myOpMode.hardwareMap.get(Servo.class, "intake");
+        in_wrist = myOpMode.hardwareMap.get(Servo.class, "in_wrist");
+        in_arm = myOpMode.hardwareMap.get(Servo.class, "in_arm");
+        outtake = myOpMode.hardwareMap.get(Servo.class, "outtake");
+        out_arm = myOpMode.hardwareMap.get(Servo.class, "out_arm");
+        out_wrist = myOpMode.hardwareMap.get(Servo.class, "out_wrist");
+        drone = myOpMode.hardwareMap.get(Servo.class, "drone");
 
         encoderState("run");
-        //Brakes the Motors
-        FLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        FRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        FLeft.setPower(0);
-        FRight.setPower(0);
-        RLeft.setPower(0);
-        RRight.setPower(0);
+        // BRAKES THE MOTORS
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+
+        // MOTOR POWERS
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+        // SERVO POWERS
+        /*
+        intake.setPosition(0);
+
+        in_wrist.setPosition(in_wrist_open);
+        in_wrist.setPosition(in_wrist_closed);
+
+        in_wrist.setPosition(in_arm_open);
+        in_wrist.setPosition(in_arm_closed);
+
+        in_wrist.setPosition(outtake_open);
+        in_wrist.setPosition(outtake_closed);
+
+        in_wrist.setPosition(out_arm_open);
+        in_wrist.setPosition(out_arm_closed);
+        */
+
+        // SERVO INITIALIZE
+        outtake.setPosition(outtake_open);
+        outtake.setPosition(outtake_open);
+        out_arm.setPosition(out_arm_closed);
+        out_wrist.setPosition(out_wrist_closed);
+    }
+    public void resetHeading(){
+        imu.initialize(
+                new IMU.Parameters(
+                        new RevHubOrientationOnRobot(
+                                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
+                        )
+                )
+        );
     }
     public void roboCentric(double forw, double side, double spin) {
-        double FLPow = -forw + side + spin;
+        double FLPow = forw - side - spin;
         double FRPow = forw + side + spin;
-        double RLPow = -forw - side + spin;
-        double RRPow = forw - side + spin;
+        double RLPow = -forw + side - spin;
+        double RRPow = -forw - side + spin;
         // normalize all motor speeds so no values exceeds 100%.
         FLPow = Range.clip(FLPow, -MAX_POWER, MAX_POWER);
         FRPow = Range.clip(FRPow, -MAX_POWER, MAX_POWER);
         RLPow = Range.clip(RLPow, -MAX_POWER, MAX_POWER);
         RRPow = Range.clip(RRPow, -MAX_POWER, MAX_POWER);
         // Set drive motor power levels.
-        FLeft.setPower(FLPow);
-        FRight.setPower(FRPow);
-        RLeft.setPower(RLPow);
-        RRight.setPower(RRPow);
+        frontLeft.setPower(FLPow);
+        frontRight.setPower(FRPow);
+        backLeft.setPower(RLPow);
+        backRight.setPower(RRPow);
     }
     public void fieldCentric(double y, double x, double rx){
 
@@ -101,67 +184,62 @@ public class HardwareTestbot
 
         rotX = rotX * 1.1;  // Counteract imperfect strafing
 
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), MAX_POWER);
-        double FLPow = (rotY + rotX + rx) / denominator;
-        double RLPow = (rotY - rotX + rx) / denominator;
-        double FRPow = (rotY - rotX - rx) / denominator;
-        double RRPow = (rotY + rotX - rx) / denominator;
+        double denominator = Math.min(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), MAX_POWER);
+        double FLPow = (rotY + rotX + rx/2) / denominator;
+        double RLPow = (-rotY - rotX + rx/2) / denominator;
+        double FRPow = (rotY - rotX - rx/2) / denominator;
+        double RRPow = (-rotY + rotX - rx/2) / denominator;
         // Set drive motor power levels.
-        FLeft.setPower(FLPow);
-        FRight.setPower(FRPow);
-        RLeft.setPower(RLPow);
-        RRight.setPower(RRPow);
+        frontLeft.setPower(FLPow);
+        frontRight.setPower(FRPow);
+        backLeft.setPower(RLPow);
+        backRight.setPower(RRPow);
     }
     public void distanceDrive(double forw_inches, double side_inches, double speed){
         int forw_tick = (int)(forw_inches * COUNTS_PER_INCH);
         int side_tick = (int)(side_inches * COUNTS_PER_INCH);
 
-        int FLTic = FLeft.getCurrentPosition()-forw_tick + side_tick;
-        int FRTic = FRight.getCurrentPosition()+forw_tick + side_tick;
-        int RLTic = RLeft.getCurrentPosition()-forw_tick - side_tick;
-        int RRTic = RRight.getCurrentPosition()+forw_tick - side_tick;
+        int FLTic = frontLeft.getCurrentPosition()-forw_tick + side_tick;
+        int FRTic = frontRight.getCurrentPosition()+forw_tick + side_tick;
+        int RLTic = backLeft.getCurrentPosition()-forw_tick - side_tick;
+        int RRTic = backRight.getCurrentPosition()+forw_tick - side_tick;
 
-        FLeft.setTargetPosition(FLTic);
-        FRight.setTargetPosition(FRTic);
-        RLeft.setTargetPosition(RLTic);
-        RRight.setTargetPosition(RRTic);
+        frontLeft.setTargetPosition(FLTic);
+        frontRight.setTargetPosition(FRTic);
+        backLeft.setTargetPosition(RLTic);
+        backRight.setTargetPosition(RRTic);
 
-        FLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        FRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        FLeft.setPower(speed);
-        FRight.setPower(speed);
-        RLeft.setPower(speed);
-        RRight.setPower(speed);
-        while (RLeft.isBusy() && FLeft.isBusy() && FRight.isBusy() && RRight.isBusy() && myOpMode.opModeIsActive()){
-        }
-        FLeft.setPower(0);
-        FRight.setPower(0);
-        RLeft.setPower(0);
-        RRight.setPower(0);
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        frontLeft.setPower(speed);
+        frontRight.setPower(speed);
+        backLeft.setPower(speed);
+        backRight.setPower(speed);
     }
     public void encoderState(String a){
         if(a.equals("reset")){
-            FLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            FRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }else if( a.equals("run")){
-            FLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            FRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            RRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }else if(a.equals("position")){
-            FLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            FRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            RLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            RRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }else if(a.equals("off")){
-            FLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            FRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            RLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            RRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
     }
 }
