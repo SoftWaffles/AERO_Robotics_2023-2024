@@ -49,7 +49,7 @@ public class HardwareTestbot
     public Servo drone = null;
 
     // MOTOR POWERS
-    public static double MAX_POWER = 0.6;
+    public static double     MAX_POWER = 0.5;
     public static double     COUNTS_PER_MOTOR_REV    = 537.7; // 28 for REV ;
     public static double     DRIVE_GEAR_REDUCTION    = 1.0; //   12 for REV;
     public static double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference

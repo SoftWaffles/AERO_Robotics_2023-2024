@@ -61,17 +61,21 @@ public class CameraOpmode extends LinearOpMode {
         // IF MIDDLE
         robot.encoderState("reset");
         robot.encoderState("run");
+
         robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
+
         robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
         robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // back a little
         robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // left
         robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate left
         robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
         score();
+
       } else {
         // IF RIGHT
         robot.encoderState("reset");
         robot.encoderState("run");
+
         robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
         robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate right
         robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little

@@ -37,7 +37,11 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             robot.fieldCentric(-gamepad1.left_stick_y,gamepad1.left_stick_x,-gamepad1.right_stick_x);
             teleUpdate();
 
-
+            if(gamepad1.right_trigger > 0.5){
+                robot.MAX_POWER = 0.1;
+            } else {
+                robot.MAX_POWER = 0.5;
+            }
 
             // SERVOS INTAKE
             if(gamepad2.a){
@@ -81,6 +85,10 @@ public class Teleop_ANDRIOD extends LinearOpMode {
 
             if(gamepad1.right_bumper){
                 robot.outtake.setPosition(robot.outtake_open);
+            }
+
+            if(gamepad1.left_bumper){
+                robot.outtake.setPosition(robot.outtake_closed);
             }
 
             if(gamepad1.y){
