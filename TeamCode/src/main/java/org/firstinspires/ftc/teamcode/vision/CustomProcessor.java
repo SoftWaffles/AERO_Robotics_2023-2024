@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
@@ -12,10 +14,16 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+@Config
 public class CustomProcessor implements VisionProcessor {
-    public Rect rectLeft = new Rect(110, 42, 40, 40);
-    public Rect rectMiddle = new Rect(160, 42, 40, 40);
-    public Rect rectRight = new Rect(210, 42, 40, 40);
+    public static int RectHeight = 400;
+    public static int RectWidth = 270;
+    public static int RectX = 50;
+    public static double Threshold = 15;
+
+
+    public Rect rectLeft = new Rect(RectX, 42, RectWidth, RectHeight);
+    public Rect rectRight = new Rect(RectX+RectWidth, 42, RectWidth, RectHeight);
     Selected selection = Selected.NONE;
 
     Mat submat = new Mat();
@@ -30,15 +38,17 @@ public class CustomProcessor implements VisionProcessor {
         Imgproc.cvtColor(frame, hsvMat, Imgproc.COLOR_RGB2HSV);
 
         double satRectLeft = getAvgSaturation(hsvMat, rectLeft);
-        double satRectMiddle = getAvgSaturation(hsvMat, rectMiddle);
         double satRectRight = getAvgSaturation(hsvMat, rectRight);
 
-        if ((satRectLeft > satRectMiddle) && (satRectLeft > satRectRight)) {
-            return Selected.LEFT;
-        } else if ((satRectMiddle > satRectLeft) && (satRectMiddle > satRectRight)) {
+        if (Math.abs(satRectLeft - satRectRight) < Threshold) {
+            return Selected.RIGHT;
+        } else if (satRectLeft < satRectRight) {
             return Selected.MIDDLE;
+        } else if (satRectLeft > satRectRight) {
+            return Selected.LEFT;
+        } else {
+            return Selected.LEFT;
         }
-        return Selected.RIGHT;
     }
 
     protected double getAvgSaturation(Mat input, Rect rect) {
@@ -67,36 +77,41 @@ public class CustomProcessor implements VisionProcessor {
         nonSelectedPaint.setColor(Color.GREEN);
 
         android.graphics.Rect drawRectangleLeft = makeGraphicsRect(rectLeft, scaleBmpPxToCanvasPx);
-        android.graphics.Rect drawRectangleMiddle = makeGraphicsRect(rectMiddle, scaleBmpPxToCanvasPx);
         android.graphics.Rect drawRectangleRight = makeGraphicsRect(rectRight, scaleBmpPxToCanvasPx);
 
         selection = (Selected) userContext;
         switch (selection) {
             case LEFT:
                 canvas.drawRect(drawRectangleLeft, selectedPaint);
-                canvas.drawRect(drawRectangleMiddle, nonSelectedPaint);
                 canvas.drawRect(drawRectangleRight, nonSelectedPaint);
                 break;
             case MIDDLE:
                 canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
-                canvas.drawRect(drawRectangleMiddle, selectedPaint);
                 canvas.drawRect(drawRectangleRight, nonSelectedPaint);
                 break;
             case RIGHT:
                 canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
-                canvas.drawRect(drawRectangleMiddle, nonSelectedPaint);
                 canvas.drawRect(drawRectangleRight, selectedPaint);
                 break;
             case NONE:
                 canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
-                canvas.drawRect(drawRectangleMiddle, nonSelectedPaint);
                 canvas.drawRect(drawRectangleRight, nonSelectedPaint);
                 break;
         }
     }
 
-    public Selected getSelection() {
-        return selection;
+    public int getSelection() {
+        if(selection == Selected.NONE){
+            return 0;
+        } else if(selection == Selected.LEFT){
+            return 1;
+        } else if(selection == Selected.MIDDLE){
+            return 2;
+        } else if(selection == Selected.RIGHT){
+            return 3;
+        }
+
+        return 1;
     }
 
     public enum Selected {
