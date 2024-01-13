@@ -24,6 +24,7 @@ public class HardwareTestbot
     // ACCESS INSTRUMENTS OF HUB
     public IMU imu;
     Orientation angle;
+    double botHeading;
 
     // SENSORS
 
@@ -52,6 +53,7 @@ public class HardwareTestbot
     public static double     COUNTS_PER_MOTOR_REV    = 537.7; // 28 for REV ;
     public static double     DRIVE_GEAR_REDUCTION    = 1.0; //   12 for REV;
     public static double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    public static double     ROBOT_DIAMETER_INCHES   = 4.0 ;
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
@@ -66,12 +68,14 @@ public class HardwareTestbot
     public static double outtake_closed = 0.1;
 
     public static double out_arm_open = 0.25;
-    public static double out_arm_closed = 0.83;
+    public static double out_arm_closed = 0.80;
 
     public static double out_wrist_open = 0.4;
     public static double out_wrist_closed = 0.08;
 
     public static double drone_release = 1;
+
+    public static double kp = 0.01;
 
     public HardwareTestbot(){
     }
@@ -143,10 +147,14 @@ public class HardwareTestbot
         */
 
         // SERVO INITIALIZE
-        outtake.setPosition(outtake_open);
-        outtake.setPosition(outtake_open);
+        outtake.setPosition(outtake_closed);
         out_arm.setPosition(out_arm_closed);
         out_wrist.setPosition(out_wrist_closed);
+
+        in_wrist.setPosition(in_wrist_closed);
+        in_arm.setPosition(in_arm_closed);
+
+
     }
     public void resetHeading(){
         imu.initialize(
@@ -160,9 +168,9 @@ public class HardwareTestbot
     }
     public void roboCentric(double forw, double side, double spin) {
         double FLPow = forw - side - spin;
-        double FRPow = forw + side + spin;
-        double RLPow = -forw + side - spin;
-        double RRPow = -forw - side + spin;
+        double FRPow = -forw - side + spin;
+        double RLPow = forw - side - spin;
+        double RRPow = -forw + side - spin;
         // normalize all motor speeds so no values exceeds 100%.
         FLPow = Range.clip(FLPow, -MAX_POWER, MAX_POWER);
         FRPow = Range.clip(FRPow, -MAX_POWER, MAX_POWER);
@@ -174,6 +182,7 @@ public class HardwareTestbot
         backLeft.setPower(RLPow);
         backRight.setPower(RRPow);
     }
+
     public void fieldCentric(double y, double x, double rx){
 
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -195,30 +204,56 @@ public class HardwareTestbot
         backLeft.setPower(RLPow);
         backRight.setPower(RRPow);
     }
-    public void distanceDrive(double forw_inches, double side_inches, double speed){
-        int forw_tick = (int)(forw_inches * COUNTS_PER_INCH);
-        int side_tick = (int)(side_inches * COUNTS_PER_INCH);
 
-        int FLTic = frontLeft.getCurrentPosition()-forw_tick + side_tick;
-        int FRTic = frontRight.getCurrentPosition()+forw_tick + side_tick;
-        int RLTic = backLeft.getCurrentPosition()-forw_tick - side_tick;
-        int RRTic = backRight.getCurrentPosition()+forw_tick - side_tick;
+    public void distanceDrive(LinearOpMode opMode, double forMovement,double latMovement,double turn, double speed){
+        int forwardSteps = (int)(forMovement * COUNTS_PER_INCH);
+        int sideSteps = (int)(latMovement * COUNTS_PER_INCH);
+        turn = ROBOT_DIAMETER_INCHES*Math.PI*(turn/180.0)*Math.PI/6.5;
+        int turnSteps = (int)(turn * COUNTS_PER_INCH);
 
-        frontLeft.setTargetPosition(FLTic);
-        frontRight.setTargetPosition(FRTic);
-        backLeft.setTargetPosition(RLTic);
-        backRight.setTargetPosition(RRTic);
+        int frontleftTargetPos   = frontLeft.getCurrentPosition() + (int)(forwardSteps + sideSteps + turnSteps);
+        int frontrightTargetPos  = frontRight.getCurrentPosition() + (int)(-forwardSteps - sideSteps + turnSteps);
+        int backleftTargetPos    = backLeft.getCurrentPosition() + (int)(forwardSteps - sideSteps - turnSteps);
+        int backrightTargetPos   = backRight.getCurrentPosition() + (int)(-forwardSteps + sideSteps - turnSteps);
+
+        frontLeft.setTargetPosition(frontleftTargetPos);
+        frontRight.setTargetPosition(frontrightTargetPos);
+        backLeft.setTargetPosition(backleftTargetPos);
+        backRight.setTargetPosition(backrightTargetPos);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        frontLeft.setPower(speed);
-        frontRight.setPower(speed);
-        backLeft.setPower(speed);
-        backRight.setPower(speed);
+        frontLeft.setPower(Math.abs(speed));
+        frontRight.setPower(Math.abs(speed));
+        backLeft.setPower(Math.abs(speed));
+        backRight.setPower(Math.abs(speed));
+
+        while (opMode.opModeIsActive() && (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy())) {
+        }
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
     }
+
+    public void turnToAngle(double angle){
+        botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        double error = botHeading - angle;
+        while(error > 10){
+            fieldCentric(0, 0, error*kp);
+            error = botHeading - angle;
+        }
+    }
+
     public void encoderState(String a){
         if(a.equals("reset")){
             frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

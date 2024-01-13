@@ -18,13 +18,12 @@ public class CameraOpmode extends LinearOpMode {
 
   private ElapsedTime runtime = new ElapsedTime();
 
-  public static double LEFT_FORW_DIST = 0;
-  public static double LEFT_SIDE_DIST = 0;
-  public static double MID_FORW_DIST = 0;
-  public static double MID_SIDE_DIST = 0;
-  public static double RIGHT_FORW_DIST = 0;
-  public static double RIGHT_SIDE_DIST = 0;
+  public static double forwardDist = 0;
+  public static double sideDist = 0;
   public static double speed = 0.5;
+  public static double turn = 0;
+
+
 
   @Override
   public void runOpMode() throws InterruptedException {
@@ -44,20 +43,67 @@ public class CameraOpmode extends LinearOpMode {
       telemetry.update();
 
       if(color.getSelection()==0 || color.getSelection()==1){
+        // IF NONE OR LEFT
         robot.encoderState("reset");
         robot.encoderState("run");
-        robot.distanceDrive(LEFT_FORW_DIST, LEFT_SIDE_DIST, speed);
+        // distanceDrive(LinearOpMode opMode, double forMovement,double latMovement,double turn, double speed)
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
+        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate left
+        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
+        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // back a little
+        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // left
+        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
+        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // right a little
+        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
+        //score();
+
       } else if(color.getSelection()==2){
+        // IF MIDDLE
         robot.encoderState("reset");
         robot.encoderState("run");
-        robot.distanceDrive(MID_FORW_DIST, MID_SIDE_DIST, speed);
-        // code for if MIDDLE
-      } else if(color.getSelection()==3){
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // back a little
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // left
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate left
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
+        score();
+      } else {
+        // IF RIGHT
         robot.encoderState("reset");
         robot.encoderState("run");
-        robot.distanceDrive(RIGHT_FORW_DIST, RIGHT_SIDE_DIST, speed);
-        // code for if RIGHT
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate right
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // back
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate 180
+        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // right a little
+        score();
       }
     }
+  }
+
+  public void score(){
+    //intake down
+    robot.in_wrist.setPosition(robot.in_wrist_open);
+    robot.in_arm.setPosition(robot.in_arm_open);
+
+    sleep(2000);
+
+    // bring out
+    robot.outtake.setPosition(robot.outtake_closed);
+    robot.out_arm.setPosition(robot.out_arm_open);
+    robot.out_wrist.setPosition(robot.out_wrist_open);
+
+    sleep(2000);
+
+    //drop pixels
+    robot.outtake.setPosition(robot.outtake_open);
+
+    sleep(2000);
+
+    // reset positions
+    robot.out_arm.setPosition(robot.out_arm_closed);
+    robot.out_wrist.setPosition(robot.out_wrist_closed);
   }
 }

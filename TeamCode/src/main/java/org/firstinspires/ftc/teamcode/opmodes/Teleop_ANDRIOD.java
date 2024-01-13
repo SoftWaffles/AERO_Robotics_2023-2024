@@ -26,6 +26,8 @@ public class Teleop_ANDRIOD extends LinearOpMode {
         robot.encoderState("run");
         boolean intakeToggle = false;
 
+        robot.outtake.setPosition(robot.outtake_open);
+
         telemetry.addData(">", "Robot Ready.");
         telemetry.update();
         waitForStart();
@@ -35,6 +37,8 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             robot.fieldCentric(-gamepad1.left_stick_y,gamepad1.left_stick_x,-gamepad1.right_stick_x);
             teleUpdate();
 
+
+
             // SERVOS INTAKE
             if(gamepad2.a){
                 robot.in_wrist.setPosition(robot.in_wrist_open);
@@ -43,7 +47,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
 
             if(gamepad2.dpad_down){
                 robot.in_arm.setPosition(robot.in_arm.getPosition()-0.001);
-            } else if(gamepad1.dpad_up){
+            } else if(gamepad2.dpad_up){
                 robot.in_arm.setPosition(robot.in_arm.getPosition()+0.001);
             }
 

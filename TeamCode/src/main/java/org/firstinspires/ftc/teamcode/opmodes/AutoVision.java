@@ -83,6 +83,7 @@ public class AutoVision extends LinearOpMode
     public static double RIGHT_FORW_DIST = 0;
     public static double RIGHT_SIDE_DIST = 0;
     public static double speed = 0.5;
+    public static double angle = 0.5;
 
     @Override public void runOpMode()
     {
@@ -110,22 +111,6 @@ public class AutoVision extends LinearOpMode
         {
             // moveRobot(double x, double y, double yaw)
             initColor();
-
-            if(color.getSelection()==0 || color.getSelection()==1){
-                robot.encoderState("reset");
-                robot.encoderState("run");
-                robot.distanceDrive(LEFT_FORW_DIST, LEFT_SIDE_DIST, speed);
-            } else if(color.getSelection()==2){
-                robot.encoderState("reset");
-                robot.encoderState("run");
-                robot.distanceDrive(MID_FORW_DIST, MID_SIDE_DIST, speed);
-                // code for if MIDDLE
-            } else if(color.getSelection()==3){
-                robot.encoderState("reset");
-                robot.encoderState("run");
-                robot.distanceDrive(RIGHT_FORW_DIST, RIGHT_SIDE_DIST, speed);
-                // code for if RIGHT
-            }
 
             // first scire
             visionPortal.setProcessorEnabled(color,false);
@@ -188,6 +173,30 @@ public class AutoVision extends LinearOpMode
             moveRobot(drive, strafe, turn);
             sleep(1);
         }
+    }
+
+    public void score(){
+        //intake down
+        robot.in_wrist.setPosition(robot.in_wrist_open);
+        robot.in_arm.setPosition(robot.in_arm_open);
+
+        sleep(2000);
+
+        // bring out
+        robot.outtake.setPosition(robot.outtake_closed);
+        robot.out_arm.setPosition(robot.out_arm_open);
+        robot.out_wrist.setPosition(robot.out_wrist_open);
+
+        sleep(2000);
+
+        //drop pixels
+        robot.outtake.setPosition(robot.outtake_open);
+
+        sleep(2000);
+
+        // reset positions
+        robot.out_arm.setPosition(robot.out_arm_closed);
+        robot.out_wrist.setPosition(robot.out_wrist_closed);
     }
 
     /**
