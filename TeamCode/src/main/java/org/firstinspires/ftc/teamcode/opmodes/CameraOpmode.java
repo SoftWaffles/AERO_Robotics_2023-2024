@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.hardware.HardwareTestbot;
@@ -20,7 +21,7 @@ public class CameraOpmode extends LinearOpMode {
 
   public static double forwardDist = 0;
   public static double sideDist = 0;
-  public static double speed = 0.5;
+  public static double time = 2000;
   public static double turn = 0;
 
 
@@ -38,7 +39,8 @@ public class CameraOpmode extends LinearOpMode {
     runtime.reset();
     // run until the end of the match (driver presses STOP)
     while (opModeIsActive()) {
-      sleep(100L);
+      sleep(1000);
+      robot.imu.resetYaw();
       telemetry.addData("Identified", color.getSelection());
       telemetry.update();
 
@@ -46,68 +48,56 @@ public class CameraOpmode extends LinearOpMode {
         // IF NONE OR LEFT
         robot.encoderState("reset");
         robot.encoderState("run");
-        // distanceDrive(LinearOpMode opMode, double forMovement,double latMovement,double turn, double speed)
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
-        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate left
-        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
-        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // back a little
-        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // left
-        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
-        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // right a little
-        //robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
-        //score();
+        robot.distanceDrive(5,0,0,0.5);
+        robot.turnToAngle(90);
+        robot.distanceDrive(5,0,0,0.5);
+
 
       } else if(color.getSelection()==2){
         // IF MIDDLE
         robot.encoderState("reset");
         robot.encoderState("run");
-
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
-
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // back a little
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // left
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate left
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
+        robot.distanceDrive(10,0,0,0.5);
         score();
 
       } else {
         // IF RIGHT
         robot.encoderState("reset");
         robot.encoderState("run");
+        robot.distanceDrive(5,0,0,0.5);
+        robot.turnToAngle(-90);
 
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate right
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // forward a little
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // back
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // rotate 180
-        robot.distanceDrive(this, forwardDist, sideDist, turn,speed); // right a little
         score();
       }
+      sleep(1000);
+      break;
     }
   }
 
   public void score(){
-    //intake down
-    robot.in_wrist.setPosition(robot.in_wrist_open);
-    robot.in_arm.setPosition(robot.in_arm_open);
+  }
+  public void drive_by_time(double forw, double side, double spin, long time){
+    double FLPow = forw + side + spin;
+    double FRPow = +forw - side - spin;
 
-    sleep(2000);
-
-    // bring out
-    robot.outtake.setPosition(robot.outtake_closed);
-    robot.out_arm.setPosition(robot.out_arm_open);
-    robot.out_wrist.setPosition(robot.out_wrist_open);
-
-    sleep(2000);
-
-    //drop pixels
-    robot.outtake.setPosition(robot.outtake_open);
-
-    sleep(2000);
-
-    // reset positions
-    robot.out_arm.setPosition(robot.out_arm_closed);
-    robot.out_wrist.setPosition(robot.out_wrist_closed);
+    double RLPow = -forw - side + spin;
+    double RRPow = -forw + side - spin;
+    // normalize all motor speeds so no values exceeds 100%.
+    FLPow = Range.clip(FLPow, -0.5, 0.5);
+    FRPow = Range.clip(FRPow, -0.5, 0.5);
+    RLPow = Range.clip(RLPow, -0.5, 0.5);
+    RRPow = Range.clip(RRPow, -0.5, 0.5);
+    // Set drive motor power levels.
+    robot.frontLeft.setPower(FLPow);
+    robot.frontRight.setPower(FRPow);
+    robot.backLeft.setPower(RLPow);
+    robot.backRight.setPower(RRPow);
+    runtime.reset();
+    while(runtime.time()<time){
+    }
+    robot.frontLeft.setPower(0);
+    robot.frontRight.setPower(0);
+    robot.backLeft.setPower(0);
+    robot.backRight.setPower(0);
   }
 }

@@ -32,6 +32,8 @@ public class VisionPortalStreamingOpMode extends LinearOpMode {
             Bitmap b = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.RGB_565);
             Utils.matToBitmap(frame, b);
             lastFrame.set(b);
+
+
             return null;
         }
 

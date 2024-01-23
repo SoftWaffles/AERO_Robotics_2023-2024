@@ -101,15 +101,7 @@ public class CustomProcessor implements VisionProcessor {
     }
 
     public int getSelection() {
-        return 0; // CHANGE THIS HDKJSLHFKJDHSFLKJHDSLKFHIUESHLUFHELKSHKJFHDLKJSHFLKDSHKFHEUSHFLKJDSHLKJFHDLKJSFHKJDSHKJ
-
-
-
-
-
-
-
-        // HDIUSAYIUFYEWAIUFHLIUESFLEHSUIuHUh sfleflue hifyeso yr7843y 8tpu43tu9tu9 ;ut94u;ty48
+        return 1;
         /*
         if(selection == Selected.NONE){
             return 0;
@@ -120,9 +112,9 @@ public class CustomProcessor implements VisionProcessor {
         } else if(selection == Selected.RIGHT){
             return 3;
         }
-
         return 1;
-         */
+        */
+
     }
 
     public enum Selected {
