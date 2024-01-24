@@ -22,7 +22,8 @@ public class Teleop_ANDRIOD extends LinearOpMode {
     HardwareTestbot robot = new HardwareTestbot();   // Use a Pushbot's hardware
     FtcDashboard dashboard =  FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
-    double newAngle = 0;
+    boolean intake_mode = false;
+    boolean intake_lock = false;
 
     @Override
     public void runOpMode() {
@@ -36,23 +37,85 @@ public class Teleop_ANDRIOD extends LinearOpMode {
         //run loop while button pressed
         while (opModeIsActive() && !isStopRequested()){
             robot.fieldCentric(-gamepad1.left_stick_y,-gamepad1.left_stick_x,gamepad1.right_stick_x);
-
             teleUpdate();
+            
             if(gamepad1.left_stick_button){
                 robot.resetHeading();
             }
+            
             robot.lift(gamepad2.dpad_up, gamepad2.dpad_down, gamepad2.y);
 
             if(gamepad1.dpad_right){
-                newAngle = -90;
+                robot.turnToAngle(-90);
             } else if(gamepad1.dpad_left){
-                newAngle = 90;
+                robot.turnToAngle(90);
             } else if(gamepad1.dpad_up){
-                newAngle = 180;
+                robot.turnToAngle(180);
             } else if(gamepad1.dpad_down){
-                newAngle = -180;
+                robot.turnToAngle(180);
             }
-            robot.turnToAngle(newAngle);
+
+            
+            // CLAW
+            /*
+            if(gamepad2.right_bumper){
+                robot.intake1.setPosition(robot.intake1_open);
+                robot.intake2.setPosition(robot.intake2_open);
+            }
+
+            if(gamepad2.left_bumper){
+                robot.intake1.setPosition(robot.intake1_closed);
+                robot.intake2.setPosition(robot.intake2_closed);
+            }
+
+             */
+
+
+            if(gamepad2.right_bumper && !intake_lock && !intake_mode){
+                robot.intake1.setPosition(robot.intake1_open);
+                robot.intake2.setPosition(robot.intake2_open);
+                intake_lock = true;
+                intake_mode = true;
+
+            } else if(gamepad2.right_bumper && !intake_lock && intake_mode ){
+                robot.intake1.setPosition(robot.intake1_closed);
+                robot.intake2.setPosition(robot.intake2_closed);
+                intake_mode = false;
+                intake_lock = true;
+
+            }else if(!gamepad2.right_bumper && intake_lock){
+                intake_lock = false;
+            }
+
+            // box + linear slides
+            if(gamepad2.b){
+                robot.outtake1.setPosition(robot.outtake1_open);
+                robot.outtake2.setPosition(robot.outtake2_open);
+            }
+            
+            if(gamepad2.y){
+                robot.outtake1.setPosition(robot.outtake1_closed);
+                robot.outtake2.setPosition(robot.outtake2_closed);
+                robot.arm1.setPosition(robot.arm1_open);
+                robot.arm2.setPosition(robot.arm2_open);
+                robot.lift1.setTargetPosition(robot.lift1_up);
+                robot.lift2.setTargetPosition(robot.lift2_up);
+                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+
+            if(gamepad2.a){
+                robot.lift1.setTargetPosition(robot.lift1_down);
+                robot.lift2.setTargetPosition(robot.lift2_down);
+                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.arm1.setPosition(robot.arm1_closed);
+                robot.arm2.setPosition(robot.arm2_closed);
+                robot.outtake1.setPosition(robot.outtake1_open);
+                robot.outtake2.setPosition(robot.outtake2_open);
+            }
+            
+            
 
         }
     }

@@ -176,27 +176,6 @@ public class AutoVision extends LinearOpMode
     }
 
     public void score(){
-        //intake down
-        robot.in_wrist.setPosition(robot.in_wrist_open);
-        robot.in_arm.setPosition(robot.in_arm_open);
-
-        sleep(2000);
-
-        // bring out
-        robot.outtake.setPosition(robot.outtake_closed);
-        robot.out_arm.setPosition(robot.out_arm_open);
-        robot.out_wrist.setPosition(robot.out_wrist_open);
-
-        sleep(2000);
-
-        //drop pixels
-        robot.outtake.setPosition(robot.outtake_open);
-
-        sleep(2000);
-
-        // reset positions
-        robot.out_arm.setPosition(robot.out_arm_closed);
-        robot.out_wrist.setPosition(robot.out_wrist_closed);
     }
 
     /**

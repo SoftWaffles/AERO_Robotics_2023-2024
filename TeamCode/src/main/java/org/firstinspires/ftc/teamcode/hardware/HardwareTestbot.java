@@ -40,18 +40,18 @@ public class HardwareTestbot
     public DcMotor backRight  = null;
 
     // MOTOR DECLARATIONS - SUBSYSTEMS
-    public DcMotorEx lift_left = null;
-    public DcMotorEx lift_right = null;
+    public DcMotorEx lift1 = null;
+    public DcMotorEx lift2 = null;
 
-    // SERVOS - INTAKE
-    public Servo intake = null;
-    public Servo in_wrist = null;
-    public Servo in_arm = null;
+    // SERVOS
+    public Servo intake1 = null;
+    public Servo intake2 = null;
+    public Servo intakeArm = null;
 
-    // SERVOS - OUTTAKE
-    public Servo outtake = null;
-    public Servo out_wrist = null;
-    public Servo out_arm = null;
+    public Servo outtake1 = null;
+    public Servo outtake2 = null;
+    public Servo arm1 = null;
+    public Servo arm2 = null;
 
     public Servo drone = null;
 
@@ -65,21 +65,34 @@ public class HardwareTestbot
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
+    // SLIDES POSITIONS
+    public static int lift1_up = 0;
+    public static int lift1_down = 0;
+
+    public static int lift2_up = 1;
+    public static int lift2_down = 1;
+
     // SERVO POSITIONS
-    public static double in_wrist_open = 0.3;
-    public static double in_wrist_closed = 0.5;
+    public static double intake1_open = 0.2;
+    public static double intake1_closed = 0.5;
 
-    public static double in_arm_closed = 1;
-    public static double in_arm_open = 0.6;
+    public static double intake2_open = 0.8;
+    public static double intake2_closed = 0.5;
 
-    public static double outtake_open = 0.25;
-    public static double outtake_closed = 0.1;
+    public static double intakeArm_open = 1;
+    public static double intakeArm_closed = 0.6;
 
-    public static double out_arm_open = 0.20;
-    public static double out_arm_closed = 0.80;
+    public static double outtake1_open = 0.25;
+    public static double outtake1_closed = 0.1;
 
-    public static double out_wrist_open = 0.45;
-    public static double out_wrist_closed = 0.08;
+    public static double outtake2_open = 0.25;
+    public static double outtake2_closed = 0.1;
+
+    public static double arm1_open = 0.25;
+    public static double arm1_closed = 0.1;
+
+    public static double arm2_open = 0.25;
+    public static double arm2_closed = 0.1;
 
     public static double drone_release = 1;
 
@@ -109,17 +122,17 @@ public class HardwareTestbot
         frontRight = myOpMode.hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = myOpMode.hardwareMap.get(DcMotor.class, "backLeft");
         backRight = myOpMode.hardwareMap.get(DcMotor.class, "backRight");
-        lift_left = myOpMode.hardwareMap.get(DcMotorEx.class, "lift_left");
-        lift_right = myOpMode.hardwareMap.get(DcMotorEx.class, "lift_right");
+        lift1 = myOpMode.hardwareMap.get(DcMotorEx.class, "lift1");
+        lift2 = myOpMode.hardwareMap.get(DcMotorEx.class, "lift2");
 
         //servos
-        intake = myOpMode.hardwareMap.get(Servo.class, "intake");
-        in_wrist = myOpMode.hardwareMap.get(Servo.class, "in_wrist");
-        in_arm = myOpMode.hardwareMap.get(Servo.class, "in_arm");
-        outtake = myOpMode.hardwareMap.get(Servo.class, "outtake");
-        out_arm = myOpMode.hardwareMap.get(Servo.class, "out_arm");
-        out_wrist = myOpMode.hardwareMap.get(Servo.class, "out_wrist");
-        drone = myOpMode.hardwareMap.get(Servo.class, "drone");
+        intake1 = myOpMode.hardwareMap.get(Servo.class, "intake1");
+        intake2 = myOpMode.hardwareMap.get(Servo.class, "intake2");
+        intakeArm = myOpMode.hardwareMap.get(Servo.class, "intakeArm");
+        outtake1 = myOpMode.hardwareMap.get(Servo.class, "outtake1");
+        outtake2 = myOpMode.hardwareMap.get(Servo.class, "outtake2");
+        arm1 = myOpMode.hardwareMap.get(Servo.class, "arm1");
+        arm2 = myOpMode.hardwareMap.get(Servo.class, "arm2");
 
         encoderState("off");
 
@@ -128,8 +141,8 @@ public class HardwareTestbot
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lift_left.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        lift_right.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        lift1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        lift2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -142,13 +155,8 @@ public class HardwareTestbot
         backLeft.setPower(0);
         backRight.setPower(0);
 
-        // SERVO INITIALIZE
-        outtake.setPosition(outtake_closed);
-        out_arm.setPosition(out_arm_closed);
-        out_wrist.setPosition(out_wrist_closed);
+        // SERVO INITIALIZE ************************************************************************************************************
 
-        in_wrist.setPosition(in_wrist_closed);
-        in_arm.setPosition(in_arm_closed);
 
 
     }
@@ -252,29 +260,29 @@ public class HardwareTestbot
 
     public void lift(boolean up, boolean down, boolean reset){
         if(up){
-            lift_left.setTargetPosition(lift_left.getCurrentPosition()+50);
-            lift_right.setTargetPosition(lift_right.getCurrentPosition()+50);
+            lift1.setTargetPosition(lift1.getCurrentPosition()+50);
+            lift2.setTargetPosition(lift2.getCurrentPosition()+50);
 
-            lift_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift_left.setPower(0.5);
-            lift_right.setPower(0.5);
+            lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift1.setPower(0.5);
+            lift2.setPower(0.5);
         }
         if(down){
-            lift_left.setTargetPosition(lift_left.getCurrentPosition()-50);
-            lift_right.setTargetPosition(lift_right.getCurrentPosition()-50);
-            lift_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift_left.setPower(0.5);
-            lift_right.setPower(0.5);
+            lift1.setTargetPosition(lift1.getCurrentPosition()-50);
+            lift2.setTargetPosition(lift2.getCurrentPosition()-50);
+            lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift1.setPower(0.5);
+            lift2.setPower(0.5);
         }
         if(reset){
-            lift_left.setTargetPosition(10);
-            lift_right.setTargetPosition(10);
-            lift_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift_left.setPower(0.5);
-            lift_right.setPower(0.5);
+            lift1.setTargetPosition(10);
+            lift2.setTargetPosition(10);
+            lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift1.setPower(0.5);
+            lift2.setPower(0.5);
         }
     }
 
