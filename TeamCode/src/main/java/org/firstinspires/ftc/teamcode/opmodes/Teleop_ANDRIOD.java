@@ -61,9 +61,12 @@ public class Teleop_ANDRIOD extends LinearOpMode {
 
             // claw toggle
             if(gamepad1.right_bumper && !intake_lock && !intake_mode){
-                if (robot.intakeArm.getPosition() == robot.intakeArm_closed) {
-                    robot.intake1.setPosition(robot.intake1_open+0.25);
-                    robot.intake2.setPosition(robot.intake2_open-0.2);
+                telemetry.addData("arm position: ", robot.intakeArm.getPosition());
+                telemetry.update();
+                if (0.1 > robot.intakeArm.getPosition() - robot.intakeArm_closed) {
+                    robot.intake1.setPosition(robot.intake1_open + 0.23);
+                    robot.intake2.setPosition(robot.intake2_open - 0.25);
+                    telemetry.addData("pleasese ", "YYA");
                 }
                 else {
                     robot.intake1.setPosition(robot.intake1_open);
@@ -118,8 +121,15 @@ public class Teleop_ANDRIOD extends LinearOpMode {
 
             // outtake fingers
             if(gamepad2.right_bumper && !outtake_lock && !outtake_mode){
-                robot.outtake1.setPosition(robot.outtake1_open);
-                robot.outtake2.setPosition(robot.outtake2_open);
+                if (robot.arm1.getPosition() == robot.arm1_open) {
+                    robot.outtake1.setPosition(0.7);
+                    robot.outtake2.setPosition(0.3);
+                }
+                else {
+                    robot.outtake1.setPosition(robot.outtake1_open);
+                    robot.outtake2.setPosition(robot.outtake2_open);
+                }
+
                 outtake_lock = true;
                 outtake_mode = true;
 
@@ -152,7 +162,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                 robot.lift1.setPower(robot.MAX_POWER);
                 robot.lift2.setPower(robot.MAX_POWER);
             }
-            //robot.lift(gamepad2.dpad_left, gamepad2.dpad_right, gamepad2.left_stick_button );
+            robot.lift(gamepad2.dpad_left, gamepad2.dpad_right, gamepad2.left_stick_button );
         }
     }
     private void teleUpdate(){
