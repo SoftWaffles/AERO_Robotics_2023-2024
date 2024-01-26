@@ -148,6 +148,9 @@ public class HardwareTestbot
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        lift2.setDirection(DcMotor.Direction.REVERSE);
+
+
         // MOTOR POWERS
         frontLeft.setPower(0);
         frontRight.setPower(0);

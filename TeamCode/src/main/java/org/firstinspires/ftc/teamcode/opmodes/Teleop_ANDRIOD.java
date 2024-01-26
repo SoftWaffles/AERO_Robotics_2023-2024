@@ -24,6 +24,8 @@ public class Teleop_ANDRIOD extends LinearOpMode {
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     boolean intake_mode = false;
     boolean intake_lock = false;
+    boolean outtake_mode = false;
+    boolean outtake_lock = false;
 
     @Override
     public void runOpMode() {
@@ -60,7 +62,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             // claw toggle
             if(gamepad1.right_bumper && !intake_lock && !intake_mode){
                 if (robot.intakeArm.getPosition() == robot.intakeArm_closed) {
-                    robot.intake1.setPosition(robot.intake1_open);
+                    robot.intake1.setPosition(robot.intake1_open+0.25);
                     robot.intake2.setPosition(robot.intake2_open-0.2);
                 }
                 else {
@@ -115,20 +117,20 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             }
 
             // outtake fingers
-            if(gamepad2.right_bumper && !intake_lock && !intake_mode){
+            if(gamepad2.right_bumper && !outtake_lock && !outtake_mode){
                 robot.outtake1.setPosition(robot.outtake1_open);
                 robot.outtake2.setPosition(robot.outtake2_open);
-                intake_lock = true;
-                intake_mode = true;
+                outtake_lock = true;
+                outtake_mode = true;
 
-            } else if(gamepad2.right_bumper && !intake_lock && intake_mode ){
+            } else if(gamepad2.right_bumper && !outtake_lock && outtake_mode){
                 robot.outtake1.setPosition(robot.outtake1_closed);
                 robot.outtake2.setPosition(robot.outtake2_closed);
-                intake_mode = false;
-                intake_lock = true;
+                outtake_mode = false;
+                outtake_lock = true;
 
-            }else if(!gamepad2.right_bumper && intake_lock){
-                intake_lock = false;
+            }else if(!gamepad2.right_bumper && outtake_lock){
+                outtake_lock = false;
             }
 
 
@@ -136,8 +138,8 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             if(gamepad2.dpad_up){
                 robot.lift1.setTargetPosition(robot.lift1_up);
                 robot.lift2.setTargetPosition(robot.lift2_up);
-                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift1.setPower(robot.MAX_POWER);
                 robot.lift2.setPower(robot.MAX_POWER);
             }
@@ -150,7 +152,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                 robot.lift1.setPower(robot.MAX_POWER);
                 robot.lift2.setPower(robot.MAX_POWER);
             }
-
+            //robot.lift(gamepad2.dpad_left, gamepad2.dpad_right, gamepad2.left_stick_button );
         }
     }
     private void teleUpdate(){
