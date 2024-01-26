@@ -36,6 +36,8 @@ public class Teleop_ANDRIOD extends LinearOpMode {
         waitForStart();
         //run loop while button pressed
         while (opModeIsActive() && !isStopRequested()){
+
+            /* GAMEPAD 1 */
             robot.fieldCentric(-gamepad1.left_stick_y,-gamepad1.left_stick_x,gamepad1.right_stick_x);
             teleUpdate();
             
@@ -43,7 +45,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                 robot.resetHeading();
             }
             
-            robot.lift(gamepad2.dpad_up, gamepad2.dpad_down, gamepad2.y);
+            //robot.lift(gamepad2.dpad_up, gamepad2.dpad_down, gamepad2.y);
 
             if(gamepad1.dpad_right){
                 robot.turnToAngle(-90);
@@ -55,31 +57,73 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                 robot.turnToAngle(180);
             }
 
-            
-            // CLAW
-            /*
-            if(gamepad2.right_bumper){
-                robot.intake1.setPosition(robot.intake1_open);
-                robot.intake2.setPosition(robot.intake2_open);
-            }
+            // claw toggle
+            if(gamepad1.right_bumper && !intake_lock && !intake_mode){
+                if (robot.intakeArm.getPosition() == robot.intakeArm_closed) {
+                    robot.intake1.setPosition(robot.intake1_open);
+                    robot.intake2.setPosition(robot.intake2_open-0.2);
+                }
+                else {
+                    robot.intake1.setPosition(robot.intake1_open);
+                    robot.intake2.setPosition(robot.intake2_open);
+                }
 
-            if(gamepad2.left_bumper){
+                intake_lock = true;
+                intake_mode = true;
+
+            } else if(gamepad1.right_bumper && !intake_lock && intake_mode ){
                 robot.intake1.setPosition(robot.intake1_closed);
                 robot.intake2.setPosition(robot.intake2_closed);
+                intake_mode = false;
+                intake_lock = true;
+
+            }else if(!gamepad1.right_bumper && intake_lock){
+                intake_lock = false;
             }
 
-             */
+            // intake arm
+            if(gamepad1.y){
+                robot.intakeArm.setPosition(robot.intakeArm_closed);
+            }
 
+            if(gamepad1.a){
+                robot.intakeArm.setPosition(robot.intakeArm_open);
+            }
 
+            /* GAMEPAD 2 */
+            // arm
+            if(gamepad2.y){
+                //robot.outtake1.setPosition(robot.outtake1_closed);
+                //robot.outtake2.setPosition(robot.outtake2_closed);
+                robot.arm1.setPosition(robot.arm1_open);
+                robot.arm2.setPosition(robot.arm2_open);
+                //robot.lift1.setTargetPosition(robot.lift1_up);
+                //robot.lift2.setTargetPosition(robot.lift2_up);
+                //robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+
+            if(gamepad2.a){
+                //robot.lift1.setTargetPosition(robot.lift1_down);
+                //robot.lift2.setTargetPosition(robot.lift2_down);
+                //robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.arm1.setPosition(robot.arm1_closed);
+                robot.arm2.setPosition(robot.arm2_closed);
+                //robot.outtake1.setPosition(robot.outtake1_open);
+                //robot.outtake2.setPosition(robot.outtake2_open);
+            }
+
+            // outtake fingers
             if(gamepad2.right_bumper && !intake_lock && !intake_mode){
-                robot.intake1.setPosition(robot.intake1_open);
-                robot.intake2.setPosition(robot.intake2_open);
+                robot.outtake1.setPosition(robot.outtake1_open);
+                robot.outtake2.setPosition(robot.outtake2_open);
                 intake_lock = true;
                 intake_mode = true;
 
             } else if(gamepad2.right_bumper && !intake_lock && intake_mode ){
-                robot.intake1.setPosition(robot.intake1_closed);
-                robot.intake2.setPosition(robot.intake2_closed);
+                robot.outtake1.setPosition(robot.outtake1_closed);
+                robot.outtake2.setPosition(robot.outtake2_closed);
                 intake_mode = false;
                 intake_lock = true;
 
@@ -87,35 +131,25 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                 intake_lock = false;
             }
 
-            // box + linear slides
-            if(gamepad2.b){
-                robot.outtake1.setPosition(robot.outtake1_open);
-                robot.outtake2.setPosition(robot.outtake2_open);
-            }
-            
-            if(gamepad2.y){
-                robot.outtake1.setPosition(robot.outtake1_closed);
-                robot.outtake2.setPosition(robot.outtake2_closed);
-                robot.arm1.setPosition(robot.arm1_open);
-                robot.arm2.setPosition(robot.arm2_open);
+
+            // linear slides
+            if(gamepad2.dpad_up){
                 robot.lift1.setTargetPosition(robot.lift1_up);
                 robot.lift2.setTargetPosition(robot.lift2_up);
                 robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift1.setPower(robot.MAX_POWER);
+                robot.lift2.setPower(robot.MAX_POWER);
             }
 
-            if(gamepad2.a){
+            if(gamepad2.dpad_down){
                 robot.lift1.setTargetPosition(robot.lift1_down);
                 robot.lift2.setTargetPosition(robot.lift2_down);
                 robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.arm1.setPosition(robot.arm1_closed);
-                robot.arm2.setPosition(robot.arm2_closed);
-                robot.outtake1.setPosition(robot.outtake1_open);
-                robot.outtake2.setPosition(robot.outtake2_open);
+                robot.lift1.setPower(robot.MAX_POWER);
+                robot.lift2.setPower(robot.MAX_POWER);
             }
-            
-            
 
         }
     }

@@ -66,34 +66,33 @@ public class HardwareTestbot
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
     // SLIDES POSITIONS
-    public static int lift1_up = 0;
-    public static int lift1_down = 0;
+    public static int lift1_up = 1;
+    public static int lift1_down = 1;
 
     public static int lift2_up = 1;
     public static int lift2_down = 1;
 
     // SERVO POSITIONS
     public static double intake1_open = 0.2;
-    public static double intake1_closed = 0.5;
+    public static double intake1_closed = 0.55;
 
     public static double intake2_open = 0.8;
-    public static double intake2_closed = 0.5;
+    public static double intake2_closed = 0.45;
 
     public static double intakeArm_open = 1;
-    public static double intakeArm_closed = 0.6;
+    public static double intakeArm_closed = 0.35;
 
-    public static double outtake1_open = 0.25;
-    public static double outtake1_closed = 0.1;
+    public static double outtake1_open = 0.35;
+    public static double outtake1_closed = 0;
 
-    public static double outtake2_open = 0.25;
-    public static double outtake2_closed = 0.1;
+    public static double outtake2_open = 0.5;
+    public static double outtake2_closed = 0.7;
 
-    public static double arm1_open = 0.25;
-    public static double arm1_closed = 0.1;
+    public static double arm1_open = 1;
+    public static double arm1_closed = 0.05;
 
-    public static double arm2_open = 0.25;
-    public static double arm2_closed = 0.1;
-
+    public static double arm2_open = 0;
+    public static double arm2_closed = 0.95;
     public static double drone_release = 1;
 
     public static double kp = 0.03;
@@ -156,6 +155,7 @@ public class HardwareTestbot
         backRight.setPower(0);
 
         // SERVO INITIALIZE ************************************************************************************************************
+        //arm1.setPosition();
 
 
 
