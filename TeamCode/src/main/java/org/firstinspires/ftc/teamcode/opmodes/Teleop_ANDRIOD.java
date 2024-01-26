@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -26,6 +28,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
     boolean intake_lock = false;
     boolean outtake_mode = false;
     boolean outtake_lock = false;
+    double timeMark = 0.0;
 
     @Override
     public void runOpMode() {
@@ -98,30 +101,18 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             /* GAMEPAD 2 */
             // arm
             if(gamepad2.y){
-                //robot.outtake1.setPosition(robot.outtake1_closed);
-                //robot.outtake2.setPosition(robot.outtake2_closed);
                 robot.arm1.setPosition(robot.arm1_open);
                 robot.arm2.setPosition(robot.arm2_open);
-                //robot.lift1.setTargetPosition(robot.lift1_up);
-                //robot.lift2.setTargetPosition(robot.lift2_up);
-                //robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                //robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
             if(gamepad2.a){
-                //robot.lift1.setTargetPosition(robot.lift1_down);
-                //robot.lift2.setTargetPosition(robot.lift2_down);
-                //robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                //robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.arm1.setPosition(robot.arm1_closed);
                 robot.arm2.setPosition(robot.arm2_closed);
-                //robot.outtake1.setPosition(robot.outtake1_open);
-                //robot.outtake2.setPosition(robot.outtake2_open);
             }
 
             // outtake fingers
             if(gamepad2.right_bumper && !outtake_lock && !outtake_mode){
-                if (robot.arm1.getPosition() == robot.arm1_open) {
+                if (0.1 > robot.arm2.getPosition() - robot.arm1_closed) {
                     robot.outtake1.setPosition(0.7);
                     robot.outtake2.setPosition(0.3);
                 }
@@ -162,7 +153,11 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                 robot.lift1.setPower(robot.MAX_POWER);
                 robot.lift2.setPower(robot.MAX_POWER);
             }
-            robot.lift(gamepad2.dpad_left, gamepad2.dpad_right, gamepad2.left_stick_button );
+            robot.lift(-gamepad2.left_stick_y>0.5, gamepad2.left_stick_y>0.5, gamepad2.left_stick_button);
+
+            telemetry.addData("lift 1 position: ", robot.lift1.getCurrentPosition());
+            telemetry.addData("lift 2 position: ", robot.lift2.getCurrentPosition());
+            telemetry.update();
         }
     }
     private void teleUpdate(){

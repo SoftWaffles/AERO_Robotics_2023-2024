@@ -89,10 +89,10 @@ public class HardwareTestbot
     public static double outtake2_closed = 0.7;
 
     public static double arm1_open = 1;
-    public static double arm1_closed = 0.05;
+    public static double arm1_closed = 0.1;
 
     public static double arm2_open = 0;
-    public static double arm2_closed = 0.95;
+    public static double arm2_closed = 0.9;
     public static double drone_release = 1;
 
     public static double kp = 0.03;
@@ -157,8 +157,8 @@ public class HardwareTestbot
         backLeft.setPower(0);
         backRight.setPower(0);
 
-        // SERVO INITIALIZE ************************************************************************************************************
-        //arm1.setPosition();
+        // SERVO INITIALIZE *********************************************************************************************************
+
 
 
 
@@ -262,16 +262,15 @@ public class HardwareTestbot
 
 
     public void lift(boolean up, boolean down, boolean reset){
-        if(up){
+        if(up && (!(lift1.getCurrentPosition()>1846) || !(lift2.getCurrentPosition()>1888))){
             lift1.setTargetPosition(lift1.getCurrentPosition()+50);
             lift2.setTargetPosition(lift2.getCurrentPosition()+50);
-
             lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             lift1.setPower(0.5);
             lift2.setPower(0.5);
         }
-        if(down){
+        if(down && (!(lift1.getCurrentPosition()<-17) || !(lift2.getCurrentPosition()<24))){
             lift1.setTargetPosition(lift1.getCurrentPosition()-50);
             lift2.setTargetPosition(lift2.getCurrentPosition()-50);
             lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
