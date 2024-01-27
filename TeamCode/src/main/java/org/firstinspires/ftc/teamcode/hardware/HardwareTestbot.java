@@ -66,10 +66,10 @@ public class HardwareTestbot
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
     // SLIDES POSITIONS
-    public static int lift1_up = 1;
+    public static int lift1_up = 1000;
     public static int lift1_down = 1;
 
-    public static int lift2_up = 1;
+    public static int lift2_up = 1000;
     public static int lift2_down = 1;
 
     // SERVO POSITIONS

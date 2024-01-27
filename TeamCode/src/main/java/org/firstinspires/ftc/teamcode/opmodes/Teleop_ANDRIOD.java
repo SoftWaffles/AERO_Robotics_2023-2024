@@ -30,6 +30,19 @@ public class Teleop_ANDRIOD extends LinearOpMode {
     boolean outtake_lock = false;
     double timeMark = 0.0;
 
+
+
+    public enum LiftState{
+        INTAKE_START,
+        INTAKE_END,
+        PREPARE_LIFT,
+        GRAB,
+        LIFT_EXTEND,
+        LIFT_DUMP,
+        LIFT_RETRACT,
+    }
+    LiftState liftState = LiftState.LIFT_RETRACT;
+
     @Override
     public void runOpMode() {
         robot.initDrive(this);
@@ -98,6 +111,111 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                 robot.intakeArm.setPosition(robot.intakeArm_open);
             }
 
+            switch(liftState){
+                case LIFT_RETRACT:
+                    if(gamepad1.x){
+                        //outtake open
+                        robot.outtake1.setPosition(robot.outtake1_open);
+                        robot.outtake2.setPosition(robot.outtake2_open);
+
+                        // slides go up
+                        robot.lift1.setTargetPosition(400);
+                        robot.lift2.setTargetPosition(400);
+                        robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        robot.lift1.setPower(robot.MAX_POWER);
+                        robot.lift2.setPower(robot.MAX_POWER);
+                        runtime.reset();
+                        liftState = LiftState.INTAKE_START;
+                    }
+                    break;
+                case INTAKE_START:
+                    if(Math.abs(robot.lift1.getCurrentPosition() - 400) < 10){
+                        robot.arm1.setPosition(robot.arm1_closed);
+                        robot.arm2.setPosition(robot.arm2_closed);
+                        // intake arm goes in
+                        robot.intakeArm.setPosition(robot.intakeArm_closed);
+                        if(runtime.milliseconds() > 1500){
+                            // claws open a little
+                            robot.intake1.setPosition(robot.intake1_open + 0.23);
+                            robot.intake2.setPosition(robot.intake2_open - 0.25);
+                            runtime.reset();
+                            liftState = LiftState.INTAKE_END;
+                        }
+
+                    }
+                    break;
+                case INTAKE_END:
+                    if(runtime.milliseconds()>1000){
+                        // intake arm goes out
+                        robot.intakeArm.setPosition(robot.intakeArm_open);
+
+                        runtime.reset();
+                        liftState = LiftState.PREPARE_LIFT;
+                    }
+                    break;
+                case PREPARE_LIFT:
+                    if(runtime.milliseconds()>1000){
+                        // claws open full
+                        robot.intake1.setPosition(robot.intake1_open);
+                        robot.intake2.setPosition(robot.intake2_open);
+                        // slides go back down
+                        robot.lift1.setTargetPosition(robot.lift1_down);
+                        robot.lift2.setTargetPosition(robot.lift2_down);
+                        robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        robot.lift1.setPower(robot.MAX_POWER);
+                        robot.lift2.setPower(robot.MAX_POWER);
+                        runtime.reset();
+                        liftState = LiftState.GRAB;
+                    }
+                    break;
+                case GRAB:
+                    if(runtime.milliseconds() > 1000){
+                        // outtake grabbers grab
+                        robot.outtake1.setPosition(robot.outtake1_closed);
+                        robot.outtake2.setPosition(robot.outtake2_closed);
+                        if(gamepad2.dpad_up) {
+                            robot.lift1.setTargetPosition(robot.lift1_up);
+                            robot.lift2.setTargetPosition(robot.lift2_up);
+                            robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            robot.lift1.setPower(robot.MAX_POWER);
+                            robot.lift2.setPower(robot.MAX_POWER);
+                            robot.arm1.setPosition(robot.arm1_open);
+                            robot.arm2.setPosition(robot.arm2_open);
+                            runtime.reset();
+                            liftState = LiftState.LIFT_EXTEND;
+                        }
+                    }
+                    break;
+                case LIFT_EXTEND:
+                default:
+                    liftState = LiftState.LIFT_RETRACT;
+            }
+            if(gamepad2.x && liftState != LiftState.LIFT_RETRACT){
+                liftState = LiftState.LIFT_RETRACT;
+            }
+            /* linear slides
+            if(gamepad2.dpad_up){
+                robot.lift1.setTargetPosition(robot.lift1_up);
+                robot.lift2.setTargetPosition(robot.lift2_up);
+                robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift1.setPower(robot.MAX_POWER);
+                robot.lift2.setPower(robot.MAX_POWER);
+            }
+             */
+
+            if(gamepad2.dpad_down){
+                robot.lift1.setTargetPosition(robot.lift1_down);
+                robot.lift2.setTargetPosition(robot.lift2_down);
+                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift1.setPower(robot.MAX_POWER);
+                robot.lift2.setPower(robot.MAX_POWER);
+            }
+
             /* GAMEPAD 2 */
             // arm
             if(gamepad2.y){
@@ -135,24 +253,8 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             }
 
 
-            // linear slides
-            if(gamepad2.dpad_up){
-                robot.lift1.setTargetPosition(robot.lift1_up);
-                robot.lift2.setTargetPosition(robot.lift2_up);
-                robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift1.setPower(robot.MAX_POWER);
-                robot.lift2.setPower(robot.MAX_POWER);
-            }
 
-            if(gamepad2.dpad_down){
-                robot.lift1.setTargetPosition(robot.lift1_down);
-                robot.lift2.setTargetPosition(robot.lift2_down);
-                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift1.setPower(robot.MAX_POWER);
-                robot.lift2.setPower(robot.MAX_POWER);
-            }
+
             robot.lift(-gamepad2.left_stick_y>0.5, gamepad2.left_stick_y>0.5, gamepad2.left_stick_button);
 
             telemetry.addData("lift 1 position: ", robot.lift1.getCurrentPosition());
