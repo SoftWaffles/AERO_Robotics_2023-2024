@@ -87,11 +87,11 @@ public class CustomProcessor implements VisionProcessor {
                 break;
             case MIDDLE:
                 canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
-                canvas.drawRect(drawRectangleRight, nonSelectedPaint);
+                canvas.drawRect(drawRectangleRight, selectedPaint);
                 break;
             case RIGHT:
                 canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
-                canvas.drawRect(drawRectangleRight, selectedPaint);
+                canvas.drawRect(drawRectangleRight, nonSelectedPaint);
                 break;
             case NONE:
                 canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
@@ -101,8 +101,7 @@ public class CustomProcessor implements VisionProcessor {
     }
 
     public int getSelection() {
-        return 1;
-        /*
+
         if(selection == Selected.NONE){
             return 0;
         } else if(selection == Selected.LEFT){
@@ -113,7 +112,7 @@ public class CustomProcessor implements VisionProcessor {
             return 3;
         }
         return 1;
-        */
+
 
     }
 

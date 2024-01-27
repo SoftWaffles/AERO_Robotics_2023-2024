@@ -83,15 +83,18 @@ public class HardwareTestbot
     public static double intakeArm_closed = 0.35;
 
     public static double outtake1_open = 0.35;
-    public static double outtake1_closed = 0;
+    public static double outtake1_closed = 0.1;
 
     public static double outtake2_open = 0.5;
-    public static double outtake2_closed = 0.7;
+    public static double outtake2_closed = 0.8;
 
-    public static double arm1_open = 1;
+    public static double outtake1_small = 0.4;
+    public static double outtake2_small= 0.5;
+
+    public static double arm1_open = 0.93;
     public static double arm1_closed = 0.1;
 
-    public static double arm2_open = 0;
+    public static double arm2_open = 0.07;
     public static double arm2_closed = 0.9;
     public static double drone_release = 1;
 
@@ -158,7 +161,10 @@ public class HardwareTestbot
         backRight.setPower(0);
 
         // SERVO INITIALIZE *********************************************************************************************************
-
+        outtake1.setPosition(outtake1_small);
+        outtake2.setPosition(outtake2_small);
+        arm1.setPosition(arm1_closed);
+        arm2.setPosition(arm2_closed);
 
 
 

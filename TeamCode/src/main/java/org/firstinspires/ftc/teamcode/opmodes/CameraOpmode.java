@@ -48,10 +48,15 @@ public class CameraOpmode extends LinearOpMode {
         // IF NONE OR LEFT
         robot.encoderState("reset");
         robot.encoderState("run");
+        // move forward and turn 90
         robot.distanceDrive(5,0,0,0.5);
         robot.turnToAngle(90);
-        robot.distanceDrive(5,0,0,0.5);
+        // move back
+        robot.distanceDrive(-5,0,0,0.5);
+        // move left and turn
+        robot.distanceDrive(-5,0,0,0.5);
 
+        score();
 
       } else if(color.getSelection()==2){
         // IF MIDDLE
@@ -66,8 +71,10 @@ public class CameraOpmode extends LinearOpMode {
         robot.encoderState("run");
         robot.distanceDrive(5,0,0,0.5);
         robot.turnToAngle(-90);
+        robot.distanceDrive(5,0,0,0.5);
 
         score();
+
       }
       sleep(1000);
       break;

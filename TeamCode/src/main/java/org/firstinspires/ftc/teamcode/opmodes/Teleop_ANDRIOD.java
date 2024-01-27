@@ -33,6 +33,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
 
 
     public enum LiftState{
+        LIFT_START,
         INTAKE_START,
         INTAKE_END,
         PREPARE_LIFT,
@@ -41,7 +42,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
         LIFT_DUMP,
         LIFT_RETRACT,
     }
-    LiftState liftState = LiftState.LIFT_RETRACT;
+    LiftState liftState = LiftState.LIFT_START;
 
     @Override
     public void runOpMode() {
@@ -79,7 +80,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             if(gamepad1.right_bumper && !intake_lock && !intake_mode){
                 telemetry.addData("arm position: ", robot.intakeArm.getPosition());
                 telemetry.update();
-                if (0.1 > robot.intakeArm.getPosition() - robot.intakeArm_closed) {
+                if (0.05 > robot.intakeArm.getPosition() - robot.intakeArm_closed) {
                     robot.intake1.setPosition(robot.intake1_open + 0.23);
                     robot.intake2.setPosition(robot.intake2_open - 0.25);
                     telemetry.addData("pleasese ", "YYA");
@@ -112,11 +113,11 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             }
 
             switch(liftState){
-                case LIFT_RETRACT:
+                case LIFT_START:
                     if(gamepad1.x){
                         //outtake open
-                        robot.outtake1.setPosition(robot.outtake1_open);
-                        robot.outtake2.setPosition(robot.outtake2_open);
+                        robot.outtake1.setPosition(robot.outtake1_small);
+                        robot.outtake2.setPosition(robot.outtake2_small);
 
                         // slides go up
                         robot.lift1.setTargetPosition(400);
@@ -135,7 +136,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                         robot.arm2.setPosition(robot.arm2_closed);
                         // intake arm goes in
                         robot.intakeArm.setPosition(robot.intakeArm_closed);
-                        if(runtime.milliseconds() > 1500){
+                        if(runtime.milliseconds() > 2000){
                             // claws open a little
                             robot.intake1.setPosition(robot.intake1_open + 0.23);
                             robot.intake2.setPosition(robot.intake2_open - 0.25);
@@ -190,13 +191,38 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                     }
                     break;
                 case LIFT_EXTEND:
+                    if(gamepad2.right_bumper){
+                        robot.outtake1.setPosition(robot.outtake1_open);
+                        robot.outtake2.setPosition(robot.outtake2_open);
+                        runtime.reset();
+                        liftState = LiftState.LIFT_DUMP;
+                    }
+                    break;
+                case LIFT_DUMP:
+                    if(runtime.milliseconds() > 750){
+                        robot.arm1.setPosition(robot.arm1_closed);
+                        robot.arm2.setPosition(robot.arm2_closed);
+                        robot.lift1.setTargetPosition(0);
+                        robot.lift2.setTargetPosition(0);
+                        robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        robot.lift1.setPower(robot.MAX_POWER);
+                        robot.lift2.setPower(robot.MAX_POWER);
+                        runtime.reset();
+                        liftState = LiftState.LIFT_RETRACT;
+                    }
+                    break;
+                case LIFT_RETRACT:
+                    if(robot.lift1.getCurrentPosition() < 200){
+                        liftState = LiftState.LIFT_START;
+                    }
                 default:
-                    liftState = LiftState.LIFT_RETRACT;
+                    liftState = LiftState.LIFT_START;
             }
-            if(gamepad2.x && liftState != LiftState.LIFT_RETRACT){
-                liftState = LiftState.LIFT_RETRACT;
+            if(gamepad2.x && liftState != LiftState.LIFT_START){
+                liftState = LiftState.LIFT_START;
             }
-            /* linear slides
+            // linear slides
             if(gamepad2.dpad_up){
                 robot.lift1.setTargetPosition(robot.lift1_up);
                 robot.lift2.setTargetPosition(robot.lift2_up);
@@ -205,7 +231,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                 robot.lift1.setPower(robot.MAX_POWER);
                 robot.lift2.setPower(robot.MAX_POWER);
             }
-             */
+             //
 
             if(gamepad2.dpad_down){
                 robot.lift1.setTargetPosition(robot.lift1_down);
@@ -251,6 +277,8 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             }else if(!gamepad2.right_bumper && outtake_lock){
                 outtake_lock = false;
             }
+
+             //
 
 
 
