@@ -57,15 +57,20 @@ public class Teleop_ANDRIOD extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()){
 
             /* GAMEPAD 1 */
-            robot.fieldCentric(-gamepad1.left_stick_y,-gamepad1.left_stick_x,gamepad1.right_stick_x);
+            robot.roboCentric(-gamepad1.left_stick_y,-gamepad1.left_stick_x,gamepad1.right_stick_x);
             teleUpdate();
             
             if(gamepad1.left_stick_button){
                 robot.resetHeading();
             }
+
+            //drone
+            if(gamepad1.b){
+                robot.drone.setPosition(robot.drone_release);
+            }
             
             //robot.lift(gamepad2.dpad_up, gamepad2.dpad_down, gamepad2.y);
-
+            /*
             if(gamepad1.dpad_right){
                 robot.turnToAngle(-90);
             } else if(gamepad1.dpad_left){
@@ -75,6 +80,8 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             } else if(gamepad1.dpad_down){
                 robot.turnToAngle(180);
             }
+            */
+
 
             // claw toggle
             if(gamepad1.right_bumper && !intake_lock && !intake_mode){
@@ -82,7 +89,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                 telemetry.update();
                 if (0.05 > robot.intakeArm.getPosition() - robot.intakeArm_closed) {
                     robot.intake1.setPosition(robot.intake1_open + 0.23);
-                    robot.intake2.setPosition(robot.intake2_open - 0.25);
+                    robot.intake2.setPosition(robot.intake2_open - 0.20);
                     telemetry.addData("pleasese ", "YYA");
                 }
                 else {
@@ -139,7 +146,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                         if(runtime.milliseconds() > 2000){
                             // claws open a little
                             robot.intake1.setPosition(robot.intake1_open + 0.23);
-                            robot.intake2.setPosition(robot.intake2_open - 0.25);
+                            robot.intake2.setPosition(robot.intake2_open - 0.20);
                             runtime.reset();
                             liftState = LiftState.INTAKE_END;
                         }
@@ -167,8 +174,12 @@ public class Teleop_ANDRIOD extends LinearOpMode {
                         robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         robot.lift1.setPower(robot.MAX_POWER);
                         robot.lift2.setPower(robot.MAX_POWER);
-                        runtime.reset();
-                        liftState = LiftState.GRAB;
+                        if(runtime.milliseconds()>1750){
+                            robot.arm1.setPosition(0.12);
+                            robot.arm2.setPosition(0.88);
+                            runtime.reset();
+                            liftState = LiftState.GRAB;
+                        }
                     }
                     break;
                 case GRAB:
@@ -224,23 +235,26 @@ public class Teleop_ANDRIOD extends LinearOpMode {
             }
             // linear slides
             if(gamepad2.dpad_up){
-                robot.lift1.setTargetPosition(robot.lift1_up);
-                robot.lift2.setTargetPosition(robot.lift2_up);
-                robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+                robot.lift1.setPower(-robot.MAX_POWER);
+                robot.lift2.setPower(-robot.MAX_POWER);
+            }
+
+           else  if(gamepad2.dpad_down){
+
+
                 robot.lift1.setPower(robot.MAX_POWER);
                 robot.lift2.setPower(robot.MAX_POWER);
             }
+            else {
+                robot.lift1.setPower(0);
+                robot.lift2.setPower(0);
+            }
+
              //
 
-            if(gamepad2.dpad_down){
-                robot.lift1.setTargetPosition(robot.lift1_down);
-                robot.lift2.setTargetPosition(robot.lift2_down);
-                robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift1.setPower(robot.MAX_POWER);
-                robot.lift2.setPower(robot.MAX_POWER);
-            }
+
 
             /* GAMEPAD 2 */
             // arm
@@ -283,7 +297,7 @@ public class Teleop_ANDRIOD extends LinearOpMode {
 
 
 
-            robot.lift(-gamepad2.left_stick_y>0.5, gamepad2.left_stick_y>0.5, gamepad2.left_stick_button);
+            //robot.lift(-gamepad2.left_stick_y>0.5, gamepad2.left_stick_y>0.5, gamepad2.left_stick_button);
 
             telemetry.addData("lift 1 position: ", robot.lift1.getCurrentPosition());
             telemetry.addData("lift 2 position: ", robot.lift2.getCurrentPosition());

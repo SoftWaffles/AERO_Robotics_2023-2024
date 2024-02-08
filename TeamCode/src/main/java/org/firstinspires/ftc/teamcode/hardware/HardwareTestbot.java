@@ -56,7 +56,7 @@ public class HardwareTestbot
     public Servo drone = null;
 
     // MOTOR POWERS
-    public static double     MAX_POWER = 0.5;
+    public static double     MAX_POWER = 0.8;
     public static double     STRAFE_GAIN = 1.3;
     public static double     COUNTS_PER_MOTOR_REV    = 537.7; // 28 for REV ;
     public static double     DRIVE_GEAR_REDUCTION    = 1.0; //   12 for REV;
@@ -66,36 +66,36 @@ public class HardwareTestbot
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
     // SLIDES POSITIONS
-    public static int lift1_up = 1000;
+    public static int lift1_up = 600;
     public static int lift1_down = 1;
 
-    public static int lift2_up = 1000;
+    public static int lift2_up = 600;
     public static int lift2_down = 1;
 
     // SERVO POSITIONS
     public static double intake1_open = 0.2;
-    public static double intake1_closed = 0.55;
+    public static double intake1_closed = 0.45;
 
     public static double intake2_open = 0.8;
-    public static double intake2_closed = 0.45;
+    public static double intake2_closed = 0.35;
 
     public static double intakeArm_open = 1;
     public static double intakeArm_closed = 0.35;
 
-    public static double outtake1_open = 0.35;
-    public static double outtake1_closed = 0.1;
+    public static double outtake1_open = 0.5;
+    public static double outtake1_closed = 0.95;
 
-    public static double outtake2_open = 0.5;
-    public static double outtake2_closed = 0.8;
+    public static double outtake2_open = 0.3;
+    public static double outtake2_closed = 0.85;
 
-    public static double outtake1_small = 0.4;
-    public static double outtake2_small= 0.5;
+    public static double outtake1_small = 0.5;
+    public static double outtake2_small= 0.4;
 
-    public static double arm1_open = 0.93;
-    public static double arm1_closed = 0.1;
+    public static double arm1_open = 0.98;
+    public static double arm1_closed = 0.02;
 
-    public static double arm2_open = 0.07;
-    public static double arm2_closed = 0.9;
+    public static double arm2_open = 0.02;
+    public static double arm2_closed = 0.98;
     public static double drone_release = 1;
 
     public static double kp = 0.03;
@@ -135,6 +135,8 @@ public class HardwareTestbot
         outtake2 = myOpMode.hardwareMap.get(Servo.class, "outtake2");
         arm1 = myOpMode.hardwareMap.get(Servo.class, "arm1");
         arm2 = myOpMode.hardwareMap.get(Servo.class, "arm2");
+        drone = myOpMode.hardwareMap.get(Servo.class, "drone");
+
 
         encoderState("off");
 
@@ -165,6 +167,11 @@ public class HardwareTestbot
         outtake2.setPosition(outtake2_small);
         arm1.setPosition(arm1_closed);
         arm2.setPosition(arm2_closed);
+        intake1.setPosition(intake1_closed);
+        intake2.setPosition(intake2_closed);
+        intakeArm.setPosition(0.5);
+        drone.setPosition(0.5);
+
 
 
 
@@ -174,10 +181,10 @@ public class HardwareTestbot
     }
     public void roboCentric(double forw, double side, double spin) {
         double denominator = Math.max(Math.abs(forw) + Math.abs(side) + Math.abs(spin), 1);
-        double FLPow = (forw - side - spin)/denominator;
-        double FRPow = (forw + side + spin)/denominator;
-        double BLPow = (-forw + side - spin)/denominator;
-        double BRPow = (-forw - side + spin)/denominator;
+        double FLPow = (-forw + side - spin)/denominator;
+        double FRPow = (-forw - side + spin)/denominator;
+        double BLPow = (forw - side - spin)/denominator;
+        double BRPow = (forw + side + spin)/denominator;
 
         // Set drive motor power levels.
         frontLeft.setPower(FLPow*MAX_POWER);
@@ -261,6 +268,10 @@ public class HardwareTestbot
             fieldCentric(0, 0, error*kp);
             error = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) - angle;
         }
+        frontLeft.setPower(Math.abs(0));
+        frontRight.setPower(Math.abs(0));
+        backLeft.setPower(Math.abs(0));
+        backRight.setPower(Math.abs(0));
         encoderState("reset");
         encoderState("run");
     }

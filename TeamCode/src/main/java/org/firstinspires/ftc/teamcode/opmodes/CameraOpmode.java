@@ -3,13 +3,19 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.hardware.HardwareTestbot;
 import org.firstinspires.ftc.teamcode.vision.CustomProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
+
+import java.util.concurrent.TimeUnit;
+
 @Config
 @Autonomous(name="VisionPortal_Test", group="Linear OpMode")
 public class CameraOpmode extends LinearOpMode {
@@ -24,6 +30,10 @@ public class CameraOpmode extends LinearOpMode {
   public static double time = 2000;
   public static double turn = 0;
 
+  public double satRectLeft = 0;
+  public double satRectMiddle = 0;
+  public double satRectRight = 0;
+
 
 
   @Override
@@ -33,7 +43,8 @@ public class CameraOpmode extends LinearOpMode {
 
     color = new CustomProcessor();
     visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), color);
-
+    setManualExposure(6, 100);  // Use low exposure time to reduce motion blur
+    ;
 
     waitForStart();
     runtime.reset();
@@ -41,47 +52,66 @@ public class CameraOpmode extends LinearOpMode {
     while (opModeIsActive()) {
       sleep(1000);
       robot.imu.resetYaw();
-      telemetry.addData("Identified", color.getSelection());
-      telemetry.update();
 
-      if(color.getSelection()==0 || color.getSelection()==1){
-        // IF NONE OR LEFT
-        robot.encoderState("reset");
-        robot.encoderState("run");
-        // move forward and turn 90
-        robot.distanceDrive(5,0,0,0.5);
-        robot.turnToAngle(90);
-        // move back
-        robot.distanceDrive(-5,0,0,0.5);
-        // move left and turn
-        robot.distanceDrive(-5,0,0,0.5);
+      satRectMiddle = color.getLeft();
+      satRectRight = color.getRight();
 
-        score();
 
-      } else if(color.getSelection()==2){
-        // IF MIDDLE
-        robot.encoderState("reset");
-        robot.encoderState("run");
-        robot.distanceDrive(10,0,0,0.5);
-        score();
+      // MOVEEEEEEEEE  STRAFEEE
 
-      } else {
-        // IF RIGHT
-        robot.encoderState("reset");
-        robot.encoderState("run");
-        robot.distanceDrive(5,0,0,0.5);
-        robot.turnToAngle(-90);
-        robot.distanceDrive(5,0,0,0.5);
+      satRectLeft = color.getLeft();
 
-        score();
 
-      }
-      sleep(1000);
-      break;
+      int selection = getSelection();
+
+
+
+
     }
   }
 
+  public void score_line(){
+
+  }
+  public void score1() {
+
+    robot.intake1.setPosition(robot.intake1_open);
+    robot.intake2.setPosition(robot.intake2_open);
+    sleep(2000);
+
+    robot.intakeArm.setPosition(robot.intakeArm_closed);
+    robot.intake1.setPosition(robot.intake1_closed);
+    robot.intake2.setPosition(robot.intake2_closed);
+
+  }
+
   public void score(){
+    robot.lift1.setTargetPosition(robot.lift1_up);
+    robot.lift2.setTargetPosition(robot.lift2_up);
+    robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    robot.lift1.setPower(robot.MAX_POWER);
+    robot.lift2.setPower(robot.MAX_POWER);
+    sleep(2500);
+    robot.arm1.setPosition(robot.arm1_open);
+    robot.arm2.setPosition(robot.arm2_open);
+    sleep(1000);
+    robot.outtake1.setPosition(robot.outtake1_open);
+    robot.outtake2.setPosition(robot.outtake2_open);
+    sleep(1000);
+    robot.outtake1.setPosition(robot.outtake1_closed);
+    robot.outtake2.setPosition(robot.outtake2_closed);
+    robot.arm1.setPosition(robot.arm1_closed);
+    robot.arm2.setPosition(robot.arm2_closed);
+    sleep(2000);
+    robot.lift1.setTargetPosition(robot.lift1_down);
+    robot.lift2.setTargetPosition(robot.lift2_down);
+    robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    robot.lift1.setPower(robot.MAX_POWER);
+    robot.lift2.setPower(robot.MAX_POWER);
+    sleep(2500);
+    robot.distanceDrive(0,10,0,0.5);
   }
   public void drive_by_time(double forw, double side, double spin, long time){
     double FLPow = forw + side + spin;
@@ -107,4 +137,49 @@ public class CameraOpmode extends LinearOpMode {
     robot.backLeft.setPower(0);
     robot.backRight.setPower(0);
   }
+  private void setManualExposure(int exposureMS, int gain) {
+    // Wait for the camera to be open, then use the controls
+
+    if (visionPortal == null) {
+      return;
+    }
+
+    // Make sure camera is streaming before we try to set the exposure controls
+    if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+      telemetry.addData("Camera", "Waiting");
+      telemetry.update();
+      while (!isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
+        sleep(20);
+      }
+      telemetry.addData("Camera", "Ready");
+      telemetry.update();
+    }
+
+    // Set camera controls unless we are stopping.
+    if (!isStopRequested())
+    {
+      ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+      if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
+        exposureControl.setMode(ExposureControl.Mode.Manual);
+        sleep(50);
+      }
+      exposureControl.setExposure((long)exposureMS, TimeUnit.MILLISECONDS);
+      sleep(20);
+      GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+      gainControl.setGain(gain);
+      sleep(20);
+    }
+  }
+
+  public int getSelection(){
+    if (satRectLeft > satRectMiddle && satRectLeft > satRectRight) {
+      return 1; // LEFT
+    }
+    else if (satRectMiddle > satRectLeft && satRectMiddle > satRectRight) {
+      return 2; // MIDDLE
+    }
+    else return 3; // RIGHT
+
+  }
+
 }
