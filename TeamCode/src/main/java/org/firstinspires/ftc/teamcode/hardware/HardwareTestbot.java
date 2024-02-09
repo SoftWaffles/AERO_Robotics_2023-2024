@@ -24,7 +24,7 @@ public class HardwareTestbot
 {
 
     // DEFINE OPMORE MEMBERS
-    private LinearOpMode myOpMode;
+    public LinearOpMode myOpMode;
 
     // ACCESS INSTRUMENTS OF HUB
     public IMU imu;
